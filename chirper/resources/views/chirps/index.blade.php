@@ -1,16 +1,19 @@
 <x-app-layout>
     <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-        <form method="POST" action="{{ route('chirps.store') }}">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('chirps.store') }}">
             @csrf
             <textarea
                 name="message"
                 placeholder="{{ __('What\'s on your mind?') }}"
                 class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
             >{{ old('message') }}</textarea>
+            <label for="image">Image:</label>
+            <input type="file" name="image" id="image">
             <x-input-error :messages="$errors->get('message')" class="mt-2" />
+            <x-input-error :messages="$errors->get('image')" class="mt-2" />
             <x-primary-button class="mt-4">{{ __('Chirp') }}</x-primary-button>
         </form>
-
+ 
         <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
             @foreach ($chirps as $chirp)
                 <div class="p-6 flex space-x-2">
@@ -26,7 +29,7 @@
                                     <small class="text-sm text-gray-600"> &middot; {{ __('edited') }}</small>
                                 @endunless
                             </div>
-                            @if ($chirp->user->is(auth()->user()))
+ 
                                 <x-dropdown>
                                     <x-slot name="trigger">
                                         <button>
@@ -36,7 +39,6 @@
                                         </button>
                                     </x-slot>
                                     <x-slot name="content">
-                                        @if ($chirp->user->is(auth()->user()))
                                         <x-dropdown-link :href="route('chirps.edit', $chirp)">
                                             {{ __('Edit') }}
                                         </x-dropdown-link>
@@ -50,28 +52,27 @@
                                         @else
                                             @if (!auth()->user()->followings->contains($chirp->user))
                                             <form method="POST" action="{{ route('profile.follow', $chirp->user) }}">
-                                                @csrf 
-                                                <x-dropdown-link :href="route('profile.follow', $chirp-user)"
-                                                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                                @csrf    
+                                                <x-dropdown-link :href="route('profile.follow', $chirp->user)"
+                                                 onclick="event.preventDefault(); this.closest('form').submit();">
                                                     {{ __('Follow') }}
                                                 </x-dropdown-link>
                                             </form>
                                             @else
-                                            <form method="POST" action="{{ route('profile.unfollow', $chirp->user) }}">
-                                                @csrf 
+                                            <form method="POST" action="{{route('profile.unfollow', $chirp->user) }}">
+                                                @csrf  
                                                 @method('delete')
-                                                <x-dropdown-link :href="route('profile.unfollow', $chirp)"
-                                                                    onclick="event.preventDefault(); this.closest('form').submit();">
-                                                    {{ __('Unfollow') }}
+                                                <x-dropdown-link :href="route('profile.unfollow', $chirp)" onclick="event.preventDefault(); this.closest('form').submit();">
+                                                        {{ __('UnFollow') }}
                                                 </x-dropdown-link>
                                             </form>
                                             @endif
-                                        @endif
                                     </x-slot>
                                 </x-dropdown>
-                            @endif
+ 
                         </div>
                         <p class="mt-4 text-lg text-gray-900">{{ $chirp->message }}</p>
+                        <img src="{{ asset($chirp->image) }}" alt="{{ $chirp->message }}">
                     </div>
                 </div>
             @endforeach

@@ -35,11 +35,20 @@ class ChirpController extends Controller
      */
         public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'message' => 'required|string|max:255',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
- 
-        $request->user()->chirps()->create($validated);
+
+        $imageName = time().'.'.$request->image->extension();
+
+        $request->image->move(public_path('images'), $imageName);
+
+        $chirp = new Chirp();
+        $chirp->message = $request->message;
+        $chirp->image = 'images/'.$imageName;
+        $chirp->user_id = auth()->id();
+        $chirp->save();
  
         return redirect(route('chirps.index'));
     }

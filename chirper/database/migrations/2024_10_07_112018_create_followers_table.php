@@ -32,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropForeign(['follower_id', "leader_id"]);
-        Schema:dropIfExists('followers');
+        #Schema::dropForeign(['follower_id', "leader_id"]);
+        Schema::dropIfExists('followers');
     }
 };
